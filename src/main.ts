@@ -1,8 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app/app.module';
+import { SwaggerConfigInit } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  SwaggerConfigInit(app);
+  await app.listen(process.env.PORT, () => {
+    console.log('PROJECT IS RUNNING ON PORT: ', process.env.PORT);
+    console.log(`swagger: http://localhost:${process.env.PORT}/swagger`);
+  });
 }
 bootstrap();

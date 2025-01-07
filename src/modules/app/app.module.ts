@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { TypeOrmConfig } from 'src/config/typeorm.config';
 import { UsersModule } from '../users/users.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UsersModule } from '../users/users.module';
       envFilePath: join(process.cwd(), '.env'),
     }),
     TypeOrmModule.forRoot(TypeOrmConfig()),
+    AuthModule,
     UsersModule,
   ],
   controllers: [],

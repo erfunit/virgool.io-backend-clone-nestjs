@@ -1,7 +1,10 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
+  Scope,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { AuthType } from './enums/type.enum';
@@ -19,11 +22,12 @@ import {
 import { OTPEntity } from '../users/entities/otp.entity';
 import { randomInt } from 'crypto';
 import { TokenService } from './token.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthResponse } from './types/response.type';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
@@ -31,6 +35,7 @@ export class AuthService {
     @InjectRepository(OTPEntity)
     private readonly otpRepository: Repository<OTPEntity>,
     private readonly tokenService: TokenService,
+    @Inject(REQUEST) private request: Request,
   ) {}
 
   async userExistence(authDto: AuthDto, res: Response) {
@@ -50,6 +55,7 @@ export class AuthService {
     const { message, token, code } = result;
     res.cookie(CookieKeys.OTP, token, {
       httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 60 * 2),
     });
     return res.json({
       message: message,
@@ -102,7 +108,36 @@ export class AuthService {
     };
   }
 
-  async checkOtp() {}
+  async checkOtp(code: string) {
+    const token = this.request.cookies?.[CookieKeys.OTP];
+    if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    const payload = this.tokenService.verifyOtpToken(token);
+    const otp = await this.otpRepository.findOneBy({
+      code,
+      userId: payload.userId,
+    });
+    if (!otp) {
+      console.log('no otp code found...');
+      throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    }
+    const now = new Date();
+    if (otp.expiresIn < now) {
+      console.log('its probably expired');
+
+      throw new UnauthorizedException(AuthMessage.ExpiredCode);
+    }
+    const user = await this.userRepository.findOneBy({ id: payload.userId });
+    const accessToken = this.tokenService.createAccessToken({
+      userId: user.id,
+    });
+    return {
+      message: PublicMessage.LogginSuccess,
+      data: {
+        accessToken,
+        user,
+      },
+    };
+  }
 
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString();

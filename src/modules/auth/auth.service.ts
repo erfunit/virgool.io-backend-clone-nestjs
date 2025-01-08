@@ -162,6 +162,13 @@ export class AuthService {
     return otp;
   }
 
+  async extractAccessToken(token: string) {
+    const { userId } = this.tokenService.verifyAccessToken(token);
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new UnauthorizedException(AuthMessage.InvalidCredentials);
+    return user;
+  }
+
   usernameValidator(method: AuthMethod, username: string) {
     switch (method) {
       case AuthMethod.Email:

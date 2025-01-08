@@ -1,6 +1,13 @@
 import { BaseEntity } from 'src/common/abstracts/base.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
-import { Column, Entity, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  UpdateDateColumn,
+} from 'typeorm';
+import { OTPEntity } from './otp.entity';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -15,6 +22,15 @@ export class UserEntity extends BaseEntity {
 
   @Column({ nullable: true })
   password: string;
+
+  @Column({ nullable: true })
+  otpId: number;
+
+  @OneToOne(() => OTPEntity, (otp) => otp.user, {
+    nullable: true,
+  })
+  @JoinColumn()
+  otp: OTPEntity;
 
   @UpdateDateColumn()
   updated_at: Date;

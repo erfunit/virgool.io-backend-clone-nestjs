@@ -1,4 +1,6 @@
-export enum BadRequesMessage {}
+export enum BadRequesMessage {
+  UsernameNotAllowedForRegister = 'username method not allowed for register',
+}
 
 export enum AuthMessage {
   UserNotFound = 'user not found',

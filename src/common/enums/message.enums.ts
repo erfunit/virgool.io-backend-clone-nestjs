@@ -1,3 +1,7 @@
+export enum PublicMessage {
+  OTPSent = 'otp code has sent.',
+}
+
 export enum BadRequesMessage {
   UsernameNotAllowedForRegister = 'username method not allowed for register',
 }

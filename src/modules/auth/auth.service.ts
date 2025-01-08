@@ -13,10 +13,15 @@ import { Repository } from 'typeorm';
 import {
   AuthMessage,
   BadRequesMessage,
+  PublicMessage,
   ValidlationMessage,
 } from 'src/common/enums/message.enums';
 import { OTPEntity } from '../users/entities/otp.entity';
 import { randomInt } from 'crypto';
+import { TokenService } from './token.service';
+import { Response } from 'express';
+import { AuthResponse } from './types/response.type';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
 
 @Injectable()
 export class AuthService {
@@ -25,19 +30,31 @@ export class AuthService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(OTPEntity)
     private readonly otpRepository: Repository<OTPEntity>,
+    private readonly tokenService: TokenService,
   ) {}
 
-  userExistence(authDto: AuthDto) {
+  async userExistence(authDto: AuthDto, res: Response) {
     const { method, type, username } = authDto;
-
+    let result: AuthResponse;
     switch (type) {
       case AuthType.Login:
-        return this.login(method, username);
+        result = await this.login(method, username);
+        break;
       case AuthType.Register:
-        return this.register(method, username);
+        result = await this.register(method, username);
+        break;
       default:
         throw new BadRequestException();
     }
+
+    const { message, token, code } = result;
+    res.cookie(CookieKeys.OTP, token, {
+      httpOnly: true,
+    });
+    return res.json({
+      message: message,
+      code: code,
+    });
   }
 
   async login(method: AuthMethod, username: string) {
@@ -50,9 +67,11 @@ export class AuthService {
 
     const otp = await this.saveOtp(user.id);
     await this.userRepository.save(user);
-
+    const token = this.tokenService.createOtpToken({ userId: user.id });
     return {
+      message: PublicMessage.OTPSent,
       code: otp.code,
+      token,
     };
   }
 
@@ -75,17 +94,17 @@ export class AuthService {
     await this.userRepository.save(user);
     const otp = await this.saveOtp(user.id);
     await this.userRepository.save(user);
-
+    const token = this.tokenService.createOtpToken({ userId: user.id });
     return {
+      message: PublicMessage.OTPSent,
       code: otp.code,
-      user,
+      token,
     };
   }
 
   async checkOtp() {}
 
   async saveOtp(userId: number) {
-    console.log('user id ====', userId);
     const code = randomInt(10000, 99999).toString();
     const expiresIn = new Date(Date.now() + 1000 * 60 * 2);
     let existsOTP = false;

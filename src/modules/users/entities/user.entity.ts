@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { OTPEntity } from './otp.entity';
+import { ProfileEntity } from './profile.entity';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -34,4 +35,11 @@ export class UserEntity extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ nullable: true })
+  profileId?: number;
+
+  @OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
+  @JoinColumn({ name: 'profileId' })
+  profile?: ProfileEntity;
 }

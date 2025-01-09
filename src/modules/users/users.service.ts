@@ -26,11 +26,11 @@ export class UsersService {
 
     if (profile_image.length !== 0) {
       const [image] = profile_image;
-      profileDto.profile_image = image.path;
+      profileDto.profile_image = image.path.split('/').slice(1).join('/');
     }
     if (bg_image.length !== 0) {
       const [image] = bg_image;
-      profileDto.bg_image = image.path;
+      profileDto.bg_image = image.path.split('/').slice(1).join('/');
     }
 
     const { id: userId, profileId, username } = this.request.user;

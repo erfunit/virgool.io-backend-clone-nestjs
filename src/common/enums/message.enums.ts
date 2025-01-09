@@ -4,6 +4,7 @@ export enum PublicMessage {
   CategoryCreated = 'created successfully',
   CategoryDeleted = 'category deleted successfully',
   CategoryUpdate = 'category updated successfully',
+  ProfileSet = 'profile data set successfully',
 }
 
 export enum BadRequesMessage {
@@ -26,6 +27,7 @@ export enum ValidlationMessage {
   InvalidMethod = 'invalid method',
   InvaliddEmail = 'invalid email',
   InvalidPhone = 'invalid phone number',
+  InvalidImageFormat = 'invalid image format, png, jpg, jpeg are allowed',
 }
 
 export enum ConflictMessage {

@@ -1,5 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Length,
+} from 'class-validator';
 import { Gender } from '../enum/gender.enum';
 
 export class ProfileDto {
@@ -22,14 +29,18 @@ export class ProfileDto {
   bg_image: string;
 
   @ApiPropertyOptional({ enum: Gender })
+  @IsEnum(Gender)
   gender: Gender;
 
   @ApiPropertyOptional({ example: '2000-01-01T10:14:05.274Z' })
+  @IsDate()
   birthday: Date;
 
   @ApiPropertyOptional()
+  @IsUrl()
   linkedin_profile: string;
 
   @ApiPropertyOptional()
+  @IsUrl()
   x_profile: string;
 }

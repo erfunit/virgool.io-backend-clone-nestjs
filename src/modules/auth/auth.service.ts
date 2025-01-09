@@ -117,13 +117,10 @@ export class AuthService {
       userId: payload.userId,
     });
     if (!otp) {
-      console.log('no otp code found...');
       throw new UnauthorizedException(AuthMessage.ExpiredCode);
     }
     const now = new Date();
     if (otp.expiresIn < now) {
-      console.log('its probably expired');
-
       throw new UnauthorizedException(AuthMessage.ExpiredCode);
     }
     const user = await this.userRepository.findOneBy({ id: payload.userId });

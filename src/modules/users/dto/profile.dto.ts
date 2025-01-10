@@ -3,6 +3,7 @@ import {
   IsDate,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUrl,
   Length,
@@ -14,33 +15,39 @@ export class ProfileDto {
   @IsString()
   @IsNotEmpty()
   @Length(3, 50)
-  nick_name: string;
+  @IsOptional()
+  nick_name?: string;
 
   @ApiPropertyOptional()
   @IsString()
   @IsNotEmpty()
   @Length(10, 200)
-  bio: string;
+  @IsOptional()
+  bio?: string;
 
   @ApiPropertyOptional({ format: 'binary' })
-  profile_image: string;
+  profile_image?: string;
 
   @ApiPropertyOptional({ format: 'binary' })
-  bg_image: string;
+  bg_image?: string;
 
   @ApiPropertyOptional({ enum: Gender })
   @IsEnum(Gender)
+  @IsOptional()
   gender: Gender;
 
   @ApiPropertyOptional({ example: '2000-01-01T10:14:05.274Z' })
   @IsDate()
+  @IsOptional()
   birthday: Date;
 
   @ApiPropertyOptional()
   @IsUrl()
+  @IsOptional()
   linkedin_profile: string;
 
   @ApiPropertyOptional()
   @IsUrl()
+  @IsOptional()
   x_profile: string;
 }

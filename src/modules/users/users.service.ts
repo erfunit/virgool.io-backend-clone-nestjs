@@ -20,8 +20,6 @@ export class UsersService {
   ) {}
 
   async changeProfile(files: ProfileFiles, profileDto: ProfileDto) {
-    console.log(files);
-
     const { profile_image, bg_image } = files;
 
     if (profile_image.length !== 0) {

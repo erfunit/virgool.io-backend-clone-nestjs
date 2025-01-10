@@ -195,4 +195,22 @@ export class UsersService {
       throw new BadRequestException(PublicMessage.SomethingWentWrong);
     return otp;
   }
+
+  async changeUsername(username: string) {
+    const { id } = this.request.user;
+
+    // getting that another user who maybe uses this username
+    const user = await this.userRepository.findOneBy({ username });
+    if (user && user.id !== id)
+      throw new ConflictException(ConflictMessage.Username);
+    if (user && user.id === id)
+      return {
+        message: PublicMessage.UsernameUpdated,
+      };
+
+    await this.userRepository.update({ id }, { username });
+    return {
+      message: PublicMessage.UsernameUpdated,
+    };
+  }
 }

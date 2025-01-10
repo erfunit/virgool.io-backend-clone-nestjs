@@ -8,6 +8,7 @@ export enum PublicMessage {
   SomethingWentWrong = 'something went wrong',
   EmailUpdated = 'email updated successfully',
   PhoneUpdated = 'phone number updated successfully',
+  UsernameUpdated = 'username updated successfully',
 }
 
 export enum BadRequestMessage {

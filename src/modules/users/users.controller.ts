@@ -13,7 +13,12 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { ChangeEmailDto, ChangePhoneDto, ProfileDto } from './dto/profile.dto';
+import {
+  ChangeEmailDto,
+  ChangePhoneDto,
+  ChangeUsernameDto,
+  ProfileDto,
+} from './dto/profile.dto';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -118,5 +123,13 @@ export class UsersController {
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async verfiyPhoneOtp(@Body() otpDto: CheckDto) {
     return this.usersService.verifyPhone(otpDto.code);
+  }
+
+  @Patch('/change-username')
+  @ApiBearerAuth('Authorization')
+  @UseGuards(AuthGuard)
+  @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
+  async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
+    return this.usersService.changeUsername(usernameDto.username);
   }
 }

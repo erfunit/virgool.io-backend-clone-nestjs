@@ -1,7 +1,9 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDate,
+  IsEmail,
   IsEnum,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -50,4 +52,16 @@ export class ProfileDto {
   @IsUrl()
   @IsOptional()
   x_profile: string;
+}
+
+export class ChangeEmailDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+}
+
+export class ChangePhoneDto {
+  @ApiProperty()
+  @IsMobilePhone('fa-IR')
+  phone: string;
 }

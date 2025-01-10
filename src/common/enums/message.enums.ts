@@ -5,10 +5,15 @@ export enum PublicMessage {
   CategoryDeleted = 'category deleted successfully',
   CategoryUpdate = 'category updated successfully',
   ProfileSet = 'profile data set successfully',
+  SomethingWentWrong = 'something went wrong',
+  EmailUpdated = 'email updated successfully',
+  PhoneUpdated = 'phone number updated successfully',
 }
 
-export enum BadRequesMessage {
+export enum BadRequestMessage {
   UsernameNotAllowedForRegister = 'username method not allowed for register',
+  PreviousEmailCannotReplace = 'your exact previous email cannot replace',
+  PreviousPhoneCannotReplace = 'your exact previous phone number cannot replace',
 }
 
 export enum AuthMessage {
@@ -32,4 +37,7 @@ export enum ValidlationMessage {
 
 export enum ConflictMessage {
   CategoryExists = 'category already exists',
+  Email = 'this email is used by another user',
+  Phone = 'this phone number is used by another user',
+  Username = 'this username is used by another user',
 }

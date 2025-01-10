@@ -15,7 +15,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import {
   AuthMessage,
-  BadRequesMessage,
+  BadRequestMessage,
   PublicMessage,
   ValidlationMessage,
 } from 'src/common/enums/message.enums';
@@ -71,7 +71,7 @@ export class AuthService {
       throw new BadRequestException(AuthMessage.UserNotFound);
     }
 
-    const otp = await this.saveOtp(user.id);
+    const otp = await this.saveOtp(user.id, method);
     await this.userRepository.save(user);
     const token = this.tokenService.createOtpToken({ userId: user.id });
     return {
@@ -86,7 +86,7 @@ export class AuthService {
     let user = await this.checkUserExistance(method, validUsername);
     if (method === AuthMethod.Username)
       throw new BadRequestException(
-        BadRequesMessage.UsernameNotAllowedForRegister,
+        BadRequestMessage.UsernameNotAllowedForRegister,
       );
     if (user) {
       throw new ConflictException(AuthMessage.AlreadyExists);
@@ -98,7 +98,9 @@ export class AuthService {
     });
 
     await this.userRepository.save(user);
-    const otp = await this.saveOtp(user.id);
+    const otp = await this.saveOtp(user.id, method);
+    otp.method = method;
+    await this.otpRepository.save(otp);
     await this.userRepository.save(user);
     const token = this.tokenService.createOtpToken({ userId: user.id });
     return {
@@ -111,10 +113,10 @@ export class AuthService {
   async checkOtp(code: string) {
     const token = this.request.cookies?.[CookieKeys.OTP];
     if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
-    const payload = this.tokenService.verifyOtpToken(token);
+    const { userId } = this.tokenService.verifyOtpToken(token);
     const otp = await this.otpRepository.findOneBy({
       code,
-      userId: payload.userId,
+      userId,
     });
     if (!otp) {
       throw new UnauthorizedException(AuthMessage.ExpiredCode);
@@ -123,10 +125,26 @@ export class AuthService {
     if (otp.expiresIn < now) {
       throw new UnauthorizedException(AuthMessage.ExpiredCode);
     }
-    const user = await this.userRepository.findOneBy({ id: payload.userId });
+    const user = await this.userRepository.findOneBy({ id: userId });
     const accessToken = this.tokenService.createAccessToken({
       userId: user.id,
     });
+
+    if (otp.method === AuthMethod.Email)
+      await this.userRepository.update(
+        { id: user.id },
+        {
+          email_verified: true,
+        },
+      );
+    else if (otp.method === AuthMethod.Phone)
+      await this.userRepository.update(
+        { id: user.id },
+        {
+          phone_verified: true,
+        },
+      );
+
     return {
       message: PublicMessage.LogginSuccess,
       data: {
@@ -136,7 +154,7 @@ export class AuthService {
     };
   }
 
-  async saveOtp(userId: number) {
+  async saveOtp(userId: number, method: AuthMethod) {
     const code = randomInt(10000, 99999).toString();
     const expiresIn = new Date(Date.now() + 1000 * 60 * 2);
     let existsOTP = false;
@@ -145,11 +163,13 @@ export class AuthService {
       existsOTP = true;
       otp.code = code;
       otp.expiresIn = expiresIn;
+      otp.method = method;
     } else {
       otp = this.otpRepository.create({
         code,
         expiresIn,
         userId,
+        method,
       });
     }
     if (!existsOTP)

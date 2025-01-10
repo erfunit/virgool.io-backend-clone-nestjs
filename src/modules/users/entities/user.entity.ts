@@ -42,4 +42,14 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
   @JoinColumn({ name: 'profileId' })
   profile?: ProfileEntity;
+
+  @Column({ nullable: true })
+  new_email: string;
+  @Column({ nullable: true })
+  new_phone: string;
+
+  @Column({ nullable: true, default: false })
+  email_verified: boolean;
+  @Column({ nullable: true, default: false })
+  phone_verified: boolean;
 }

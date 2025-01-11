@@ -4,11 +4,13 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   UpdateDateColumn,
 } from 'typeorm';
 import { OTPEntity } from './otp.entity';
 import { ProfileEntity } from './profile.entity';
+import { BlogEntity } from 'src/modules/blog/entities/blog.entity.';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -42,6 +44,9 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
   @JoinColumn({ name: 'profileId' })
   profile?: ProfileEntity;
+
+  @OneToMany(() => BlogEntity, (blog) => blog.author)
+  blogs: BlogEntity[];
 
   @Column({ nullable: true })
   new_email: string;

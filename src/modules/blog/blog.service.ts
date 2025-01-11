@@ -44,4 +44,19 @@ export class BlogService {
       data: blog,
     };
   }
+
+  getMyBlogs() {
+    const { id } = this.request.user;
+    return this.blogRepository.find({
+      where: { authorId: id },
+      order: { id: 'DESC' },
+    });
+  }
+
+  blogList() {
+    return this.blogRepository.find({
+      where: {},
+      order: { id: 'DESC' },
+    });
+  }
 }

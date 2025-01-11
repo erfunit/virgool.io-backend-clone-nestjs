@@ -10,7 +10,7 @@ async function bootstrap() {
   SwaggerConfigInit(app);
   app.useStaticAssets('public');
   app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   await app.listen(process.env.PORT, () => {
     console.log('PROJECT IS RUNNING ON PORT: ', process.env.PORT);
     console.log(`swagger: http://localhost:${process.env.PORT}/swagger`);

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { OTPEntity } from './otp.entity';
 import { ProfileEntity } from './profile.entity';
-import { BlogEntity } from 'src/modules/blog/entities/blog.entity.';
+import { BlogEntity } from 'src/modules/blog/entities/blog.entity';
 import { BlogLikeEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarkEntity } from 'src/modules/blog/entities/bookmark.entity';
 import { BlogCommentEntity } from 'src/modules/blog/entities/comment.entity';

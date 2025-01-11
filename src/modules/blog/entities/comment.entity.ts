@@ -1,7 +1,7 @@
 import { BaseEntity } from 'src/common/abstracts/base.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { BlogEntity } from './blog.entity.';
+import { BlogEntity } from './blog.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 
 @Entity(EntityName.BlogComment)

@@ -22,7 +22,7 @@ export class BlogEntity extends BaseEntity {
   slug: string;
 
   @Column()
-  time_for_study: string;
+  time_for_study: number;
 
   @Column()
   description: string;

@@ -13,6 +13,7 @@ import { ProfileEntity } from './profile.entity';
 import { BlogEntity } from 'src/modules/blog/entities/blog.entity.';
 import { BlogLikeEntity } from 'src/modules/blog/entities/like.entity';
 import { BlogBookmarkEntity } from 'src/modules/blog/entities/bookmark.entity';
+import { BlogCommentEntity } from 'src/modules/blog/entities/comment.entity';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -55,6 +56,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => BlogBookmarkEntity, (blog_bookmarks) => blog_bookmarks.user)
   blog_bookmarks: BlogBookmarkEntity[];
+
+  @OneToMany(() => BlogCommentEntity, (blog_comments) => blog_comments.user)
+  blog_comments: BlogCommentEntity[];
 
   @Column({ nullable: true })
   new_email: string;

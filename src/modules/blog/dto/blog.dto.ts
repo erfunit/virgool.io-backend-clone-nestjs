@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
-  IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
   Length,
@@ -20,8 +20,7 @@ export class CreateBlogDto {
   slug?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNumberString()
   time_for_study: number;
 
   @ApiPropertyOptional()

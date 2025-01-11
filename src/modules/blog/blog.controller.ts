@@ -5,15 +5,19 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { CreateBlogDto } from './dto/blog.dto';
 
-@Controller('blog')
 @ApiTags('Blogs')
+@Controller('blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post('/')
   @ApiBearerAuth('Authorization')
   @UseGuards(AuthGuard)
-  @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.MultipartData)
+  @ApiConsumes(
+    SwaggerConsumes.UrlEncoded,
+    SwaggerConsumes.Json,
+    // SwaggerConsumes.MultipartData,
+  )
   create(@Body() createBlogDto: CreateBlogDto) {
     return this.blogService.create(createBlogDto);
   }

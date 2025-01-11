@@ -1,14 +1,24 @@
 export enum PublicMessage {
+  // auth
   OTPSent = 'otp code has sent.',
   LogginSuccess = "You've logged in successfully",
+
+  // category
   CategoryCreated = 'created successfully',
   CategoryDeleted = 'category deleted successfully',
   CategoryUpdate = 'category updated successfully',
+
+  // Profile and user
   ProfileSet = 'profile data set successfully',
-  SomethingWentWrong = 'something went wrong',
   EmailUpdated = 'email updated successfully',
   PhoneUpdated = 'phone number updated successfully',
   UsernameUpdated = 'username updated successfully',
+
+  // blog
+  BlogCreated = 'blog created successfully',
+
+  // public
+  SomethingWentWrong = 'something went wrong',
 }
 
 export enum BadRequestMessage {
@@ -41,4 +51,5 @@ export enum ConflictMessage {
   Email = 'this email is used by another user',
   Phone = 'this phone number is used by another user',
   Username = 'this username is used by another user',
+  BlogSlug = 'this slug is already used in another blog',
 }

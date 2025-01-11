@@ -7,10 +7,11 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   SwaggerConfigInit(app);
   app.useStaticAssets('public');
   app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT, () => {
     console.log('PROJECT IS RUNNING ON PORT: ', process.env.PORT);
     console.log(`swagger: http://localhost:${process.env.PORT}/swagger`);

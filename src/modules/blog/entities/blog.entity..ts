@@ -18,6 +18,12 @@ export class BlogEntity extends BaseEntity {
   @Column()
   title: string;
 
+  @Column({ unique: true })
+  slug: string;
+
+  @Column()
+  time_for_study: string;
+
   @Column()
   description: string;
 

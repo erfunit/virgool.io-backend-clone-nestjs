@@ -1,18 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AuthDto, CheckDto } from './dto/auth.dto';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { Request, Response } from 'express';
-import { AuthGuard } from './guards/auth.guard';
+import { RequiredAuth } from 'src/common/decorators/auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -32,8 +24,7 @@ export class AuthController {
   }
 
   @Get('/check-auth')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   checkAuth(@Req() req: Request) {
     return {
       message: "You're logged in",

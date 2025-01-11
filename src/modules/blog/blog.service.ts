@@ -8,6 +8,11 @@ import { generateSlug } from 'src/common/utils/slug.util';
 import { BlogStatus } from './enum/blog-status.enum';
 import { Request } from 'express';
 import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enums';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import {
+  paginationGenerator,
+  paginationResolver,
+} from 'src/common/utils/pagination.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -53,10 +58,18 @@ export class BlogService {
     });
   }
 
-  blogList() {
-    return this.blogRepository.find({
+  async blogList(paginationDto: PaginationDto) {
+    const { skip, limit: take, page } = paginationResolver(paginationDto);
+    const [blogs, count] = await this.blogRepository.findAndCount({
       where: {},
       order: { id: 'DESC' },
+      skip,
+      take,
     });
+
+    return {
+      data: blogs,
+      pagination: paginationGenerator(count, page, take),
+    };
   }
 }

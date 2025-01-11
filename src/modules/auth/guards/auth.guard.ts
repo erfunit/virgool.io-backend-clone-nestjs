@@ -8,10 +8,14 @@ import { isJWT } from 'class-validator';
 import { Request } from 'express';
 import { AuthMessage } from 'src/common/enums/message.enums';
 import { AuthService } from '../auth.service';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext) {
     const httpContext = context.switchToHttp();

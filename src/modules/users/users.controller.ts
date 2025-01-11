@@ -8,11 +8,10 @@ import {
   Put,
   Res,
   UploadedFiles,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import {
   ChangeEmailDto,
   ChangePhoneDto,
@@ -26,12 +25,12 @@ import {
   multerDestination,
   multerFileName,
 } from 'src/common/utils/multer.util';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { ProfileFiles } from './types/file.types';
 import { Response } from 'express';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { PublicMessage } from 'src/common/enums/message.enums';
 import { CheckDto } from '../auth/dto/auth.dto';
+import { RequiredAuth } from 'src/common/decorators/auth.decorator';
 
 @Controller('users')
 @ApiTags('Users')
@@ -39,8 +38,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put('/profile')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.MultipartData)
   @UseInterceptors(
     FileFieldsInterceptor(
@@ -71,15 +69,13 @@ export class UsersController {
   }
 
   @Get('/profile')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   getUserWithProfile() {
     return this.usersService.getUserWithProfile();
   }
 
   @Patch('/change-email')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
     const { code, token } = await this.usersService.changeEmail(emailDto.email);
@@ -94,16 +90,14 @@ export class UsersController {
   }
 
   @Post('/verify-email-otp')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async verfiyEmailOtp(@Body() otpDto: CheckDto) {
     return this.usersService.verifyEmail(otpDto.code);
   }
 
   @Patch('/change-phone')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async changePhone(@Body() phoneDto: ChangePhoneDto, @Res() res: Response) {
     const { code, token } = await this.usersService.changePhone(phoneDto.phone);
@@ -118,16 +112,14 @@ export class UsersController {
   }
 
   @Post('/verify-phone-otp')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async verfiyPhoneOtp(@Body() otpDto: CheckDto) {
     return this.usersService.verifyPhone(otpDto.code);
   }
 
   @Patch('/change-username')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)
   async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
     return this.usersService.changeUsername(usernameDto.username);

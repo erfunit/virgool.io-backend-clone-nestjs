@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { AuthGuard } from '../auth/guards/auth.guard';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { CreateBlogDto } from './dto/blog.dto';
+import { Pagination } from 'src/common/decorators/pagination.decorator';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { RequiredAuth } from 'src/common/decorators/auth.decorator';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -11,8 +13,7 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post('/')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   @ApiConsumes(
     SwaggerConsumes.UrlEncoded,
     SwaggerConsumes.Json,
@@ -23,13 +24,13 @@ export class BlogController {
   }
 
   @Get('/')
-  blogList() {
-    return this.blogService.blogList(); 
+  @Pagination()
+  find(@Query() paginationDto: PaginationDto) {
+    return this.blogService.blogList(paginationDto);
   }
 
   @Get('/my-blogs')
-  @ApiBearerAuth('Authorization')
-  @UseGuards(AuthGuard)
+  @RequiredAuth()
   getMyBlogs() {
     return this.blogService.getMyBlogs();
   }

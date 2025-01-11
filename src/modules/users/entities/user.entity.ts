@@ -11,6 +11,7 @@ import {
 import { OTPEntity } from './otp.entity';
 import { ProfileEntity } from './profile.entity';
 import { BlogEntity } from 'src/modules/blog/entities/blog.entity.';
+import { BlogLikeEntity } from 'src/modules/blog/entities/like.entity';
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -47,6 +48,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => BlogEntity, (blog) => blog.author)
   blogs: BlogEntity[];
+
+  @OneToMany(() => BlogLikeEntity, (blog_like) => blog_like.user)
+  blog_likes: BlogLikeEntity[];
 
   @Column({ nullable: true })
   new_email: string;

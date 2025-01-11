@@ -3,6 +3,7 @@ import { EntityName } from 'src/common/enums/entity.enum';
 import { Column, Entity, ManyToOne, UpdateDateColumn } from 'typeorm';
 import { BlogStatus } from '../enum/blog-status.enum';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { BlogLikeEntity } from './like.entity';
 
 @Entity(EntityName.Blog)
 export class BlogEntity extends BaseEntity {
@@ -24,8 +25,11 @@ export class BlogEntity extends BaseEntity {
   @Column()
   authorId: number;
 
-  @ManyToOne(() => UserEntity, user.blogs, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.blogs, { onDelete: 'CASCADE' })
   author: UserEntity;
+
+  @ManyToOne(() => BlogLikeEntity, (blog_like) => blog_like.blog)
+  blog_likes: BlogLikeEntity[];
 
   @UpdateDateColumn()
   updated_at: Date;

@@ -1,6 +1,24 @@
 import { BaseEntity } from 'src/common/abstracts/base.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
-import { Entity } from 'typeorm';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { BlogEntity } from './blog.entity.';
 
-@Entity(EntityName.Like)
-export class LikeEntity extends BaseEntity {}
+@Entity(EntityName.BlogLike)
+export class BlogLikeEntity extends BaseEntity {
+  @Column()
+  blogId: number;
+
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => UserEntity, (user) => user.blog_likes, {
+    onDelete: 'CASCADE',
+  })
+  user: UserEntity;
+
+  @ManyToOne(() => BlogEntity, (blog) => blog.blog_likes, {
+    onDelete: 'CASCADE',
+  })
+  blog: BlogEntity;
+}

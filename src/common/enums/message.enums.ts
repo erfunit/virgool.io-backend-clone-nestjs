@@ -23,6 +23,10 @@ export enum PublicMessage {
   BlogLiked = 'blog liked',
   BlogDisliked = 'blog disliked',
 
+  // bookmark
+  BlogBookmarked = 'blog bookmarked',
+  BlogBookmarkedRemoved = 'bookmark removed',
+
   // public
   SomethingWentWrong = 'something went wrong',
 }

@@ -10,6 +10,8 @@ import { BlogBookmarkEntity } from './entities/bookmark.entity';
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { CategoryService } from '../category/category.service';
 import { CategoryEntity } from '../category/entities/category.entity';
+import { CommentsController } from './controller/comments.controller';
+import { CommentsService } from './service/comments.service';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { CategoryEntity } from '../category/entities/category.entity';
       CategoryEntity,
     ]),
   ],
-  controllers: [BlogController],
-  providers: [BlogService, CategoryService],
+  controllers: [BlogController, CommentsController],
+  providers: [BlogService, CategoryService, CommentsService],
 })
 export class BlogModule {}

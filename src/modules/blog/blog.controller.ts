@@ -55,6 +55,12 @@ export class BlogController {
     return this.blogService.findOne(id);
   }
 
+  @Get('like/:id')
+  @RequiredAuth()
+  toggleLike(@Param('id', ParseIntPipe) id: number) {
+    return this.blogService.toggleLike(id);
+  }
+
   @Put(':id')
   @RequiredAuth()
   @ApiConsumes(

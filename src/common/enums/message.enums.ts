@@ -19,6 +19,10 @@ export enum PublicMessage {
   BlogRemoved = 'blog removed successfully',
   BlogUpdated = 'blog updated successfully',
 
+  // like
+  BlogLiked = 'blog liked',
+  BlogDisliked = 'blog disliked',
+
   // public
   SomethingWentWrong = 'something went wrong',
 }

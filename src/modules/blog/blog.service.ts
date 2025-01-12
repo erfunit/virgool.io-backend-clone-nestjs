@@ -27,6 +27,7 @@ import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { CategoryService } from '../category/category.service';
 import { isArray, isString } from 'class-validator';
 import { EntityName } from 'src/common/enums/entity.enum';
+import { BlogLikeEntity } from './entities/like.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -35,6 +36,8 @@ export class BlogService {
     private readonly blogRepository: Repository<BlogEntity>,
     @InjectRepository(BlogCategoryEntity)
     private readonly blogCategoryRepository: Repository<BlogCategoryEntity>,
+    @InjectRepository(BlogLikeEntity)
+    private readonly blogLikeRepository: Repository<BlogLikeEntity>,
     private readonly categoryService: CategoryService,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
@@ -144,6 +147,21 @@ export class BlogService {
     });
     if (!blog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
     return blog;
+  }
+
+  async toggleLike(blogId: number) {
+    const { id: userId } = this.request.user;
+    await this.findOne(blogId);
+    const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId });
+    let message = PublicMessage.BlogLiked;
+    if (isLiked) {
+      await this.blogLikeRepository.delete({ blogId, userId });
+      message = PublicMessage.BlogDisliked;
+    } else {
+      await this.blogLikeRepository.insert({ blogId, userId });
+    }
+
+    return { message };
   }
 
   async update(id: number, blogDto: UpdateBlogDto) {

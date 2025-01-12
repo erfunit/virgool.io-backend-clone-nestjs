@@ -1,11 +1,13 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
+  IsEnum,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
   IsString,
   Length,
 } from 'class-validator';
+import { BlogStatus } from '../enum/blog-status.enum';
 
 export class CreateBlogDto {
   @ApiProperty()
@@ -53,4 +55,10 @@ export class FilterBlogDto {
   @IsString()
   @IsOptional()
   search?: string;
+}
+
+export class ChangeStatusDto {
+  @ApiProperty({ enum: BlogStatus })
+  @IsEnum(BlogStatus)
+  status: BlogStatus;
 }

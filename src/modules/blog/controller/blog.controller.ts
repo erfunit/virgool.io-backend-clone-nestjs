@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -12,7 +13,12 @@ import {
 import { BlogService } from '../service/blog.service';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
+import {
+  ChangeStatusDto,
+  CreateBlogDto,
+  FilterBlogDto,
+  UpdateBlogDto,
+} from '../dto/blog.dto';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { RequiredAuth } from 'src/common/decorators/auth.decorator';
@@ -50,9 +56,10 @@ export class BlogController {
     return this.blogService.getMyBlogs();
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.blogService.findOne(id);
+  @Get(':slug')
+  @RequiredAuth(true)
+  findOne(@Param('slug') slug: string) {
+    return this.blogService.findOne(slug);
   }
 
   @Get('like/:id')
@@ -79,6 +86,20 @@ export class BlogController {
     @Body() updateBlogDto: UpdateBlogDto,
   ) {
     return this.blogService.update(id, updateBlogDto);
+  }
+
+  @Patch('status/:blogId')
+  @RequiredAuth()
+  @ApiConsumes(
+    SwaggerConsumes.UrlEncoded,
+    SwaggerConsumes.Json,
+    // SwaggerConsumes.MultipartData,
+  )
+  updateStatus(
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Body() changeStatusDto: ChangeStatusDto,
+  ) {
+    return this.blogService.changeStatus(blogId, changeStatusDto);
   }
 
   @Delete(':id')

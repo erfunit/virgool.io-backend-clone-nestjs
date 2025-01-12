@@ -9,7 +9,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
+import {
+  ChangeStatusDto,
+  CreateBlogDto,
+  FilterBlogDto,
+  UpdateBlogDto,
+} from '../dto/blog.dto';
 import { generateSlug } from 'src/common/utils/slug.util';
 import { BlogStatus } from '../enum/blog-status.enum';
 import { Request } from 'express';
@@ -146,16 +151,53 @@ export class BlogService {
     };
   }
 
-  async findOne(id: number) {
+  async findOneById(id: number) {
+    const blog = await this.blogRepository.findOneBy({ id });
+    if (!blog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
+    return blog;
+  }
+
+  async findOne(slug: string) {
+    const user = this.request.user;
+
+    const pureBlog = await this.blogRepository.findOneBy({ slug });
+    if (!pureBlog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
+
     const blog = await this.blogRepository
       .createQueryBuilder('blog')
+      .leftJoinAndSelect('blog.comments', 'comments')
+      .leftJoinAndSelect('comments.user', 'commentUser')
+      .leftJoinAndSelect('commentUser.profile', 'commentUserProfile')
       .leftJoinAndSelect('blog.author', 'author')
       .leftJoinAndSelect('author.profile', 'profile')
       .leftJoinAndSelect('blog.categories', 'categories')
       .leftJoinAndSelect('categories.category', 'category')
       .loadRelationCountAndMap('blog.like_count', 'blog.blog_likes')
       .loadRelationCountAndMap('blog.bookmark_count', 'blog.blog_bookmarks')
-      .where('blog.id = :id', { id })
+      .loadRelationCountAndMap(
+        'blog.comments_count',
+        'blog.comments',
+        'comment',
+        (qb) => qb.where('comment.accepted = :accepted', { accepted: true }),
+      )
+      .where('blog.slug = :slug', { slug })
+      .andWhere(
+        user
+          ? '(blog.status = :publishedStatus OR (blog.status = :draftedStatus AND blog.authorId = :userId))'
+          : 'blog.status = :publishedStatus',
+        {
+          publishedStatus: BlogStatus.Published,
+          draftedStatus: BlogStatus.Draft,
+          userId: user?.id, // Use optional chaining to prevent accessing `id` when user is null
+        },
+      )
+      // Dynamically filter comments based on whether the user is the author
+      .andWhere(
+        user && user.id === pureBlog.authorId
+          ? '1=1' // No restriction for the author
+          : 'comments.accepted = :accepted',
+        { accepted: true },
+      )
       .select([
         'blog.id',
         'blog.title',
@@ -169,6 +211,13 @@ export class BlogService {
         'author.username',
         'author.id',
         'profile.nick_name',
+        'comments.text',
+        'comments.id',
+        'comments.parentId',
+        'comments.accepted',
+        'commentUser.username',
+        'commentUserProfile.nick_name',
+        'commentUserProfile.profile_image',
       ])
       .getOne();
 
@@ -181,7 +230,7 @@ export class BlogService {
 
   async toggleLike(blogId: number) {
     const { id: userId } = this.request.user;
-    await this.findOne(blogId);
+    await this.findOneById(blogId);
     const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId });
     let message = PublicMessage.BlogLiked;
     if (isLiked) {
@@ -196,7 +245,7 @@ export class BlogService {
 
   async toggleBookmark(blogId: number) {
     const { id: userId } = this.request.user;
-    await this.findOne(blogId);
+    await this.findOneById(blogId);
     const isBookmarked = await this.blogBookmarkRepository.findOneBy({
       userId,
       blogId,
@@ -213,7 +262,7 @@ export class BlogService {
   }
 
   async update(id: number, blogDto: UpdateBlogDto) {
-    const blog = await this.findOne(id);
+    const blog = await this.findOneById(id);
 
     const { title, description, content, slug, time_for_study, categories } =
       blogDto;
@@ -274,9 +323,26 @@ export class BlogService {
     };
   }
 
+  async changeStatus(blogId: number, changeStatusDto: ChangeStatusDto) {
+    const { id: authorId } = this.request.user;
+    const blog = await this.blogRepository.findOneBy({
+      id: blogId,
+      authorId,
+    });
+    if (!blog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
+
+    const { status: newStatus } = changeStatusDto;
+
+    blog.status = newStatus;
+    await this.blogRepository.save(blog);
+    return {
+      message: `blog status changed to (${newStatus})`,
+    };
+  }
+
   async remove(id: number) {
     const { id: userId } = this.request.user;
-    const blog = await this.findOne(id);
+    const blog = await this.findOneById(id);
     if (blog.authorId !== userId)
       throw new NotFoundException(NotFoundMessage.BlogNotFound);
     await this.blogRepository.delete({ id });

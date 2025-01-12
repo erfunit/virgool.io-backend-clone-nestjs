@@ -135,19 +135,30 @@ export class BlogService {
   }
 
   async findOne(id: number) {
-    const blog = await this.blogRepository.findOne({
-      where: { id },
-      relations: ['categories', 'categories.category'],
-      select: {
-        categories: {
-          id: true,
-          category: {
-            title: true,
-          },
-        },
-      },
-    });
-    if (!blog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
+    const blog = await this.blogRepository
+      .createQueryBuilder('blog')
+      .leftJoinAndSelect('blog.categories', 'categories')
+      .leftJoinAndSelect('categories.category', 'category')
+      .loadRelationCountAndMap('blog.likeCount', 'blog.blog_likes')
+      .loadRelationCountAndMap('blog.bookmarkCount', 'blog.blog_bookmarks')
+      .where('blog.id = :id', { id })
+      .select([
+        'blog.id',
+        'blog.title',
+        'blog.slug',
+        'blog.time_for_study',
+        'blog.description',
+        'blog.content',
+        'blog.status',
+        'categories.id',
+        'category.title',
+      ])
+      .getOne();
+
+    if (!blog) {
+      throw new NotFoundException(NotFoundMessage.BlogNotFound);
+    }
+
     return blog;
   }
 

@@ -13,16 +13,28 @@ import {
   paginationGenerator,
   paginationResolver,
 } from 'src/common/utils/pagination.util';
+import { BlogCategoryEntity } from './entities/blog-category.entity';
+import { CategoryService } from '../category/category.service';
+import { isArray, isString } from 'class-validator';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
   constructor(
     @InjectRepository(BlogEntity)
     private readonly blogRepository: Repository<BlogEntity>,
+    @InjectRepository(BlogCategoryEntity)
+    private readonly blogCategoryRepository: Repository<BlogCategoryEntity>,
+    private readonly categoryService: CategoryService,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
   async create(blogDto: CreateBlogDto) {
+    if (!isArray(blogDto.categories) && isString(blogDto.categories)) {
+      blogDto.categories = blogDto.categories.split(',');
+    } else {
+      blogDto.categories = [];
+    }
+
     if (blogDto.slug && blogDto.slug !== '') {
       const newSlug = generateSlug(blogDto.slug, false);
       const blog = await this.blogRepository.findOneBy({ slug: newSlug });
@@ -43,6 +55,20 @@ export class BlogService {
       authorId: this.request.user.id,
     });
     await this.blogRepository.save(blog);
+
+    for (const categoryTitle of blogDto.categories) {
+      let category = await this.categoryService.findOneByTitle(categoryTitle);
+      if (!category)
+        category = await this.categoryService
+          .create({
+            title: categoryTitle,
+          })
+          .then((data) => data.data);
+      await this.blogCategoryRepository.insert({
+        blogId: blog.id,
+        categoryId: category.id,
+      });
+    }
 
     return {
       message: PublicMessage.BlogCreated,

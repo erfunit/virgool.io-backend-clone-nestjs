@@ -39,6 +39,8 @@ export class CategoryService {
     };
   }
 
+  
+
   async findAll(paginationDto: PaginationDto) {
     console.log(paginationDto);
     const { page, limit, skip } = paginationResolver(paginationDto);
@@ -59,6 +61,10 @@ export class CategoryService {
     if (!category)
       throw new NotFoundException(NotFoundMessage.CategoryNotFound);
     return category;
+  }
+
+  findOneByTitle(title: string) {
+    return this.categoryRepository.findOneBy({ title });
   }
 
   async existanceCheckByTitle(title: string) {

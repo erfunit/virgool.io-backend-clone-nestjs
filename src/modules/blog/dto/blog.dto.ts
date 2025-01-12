@@ -37,4 +37,14 @@ export class CreateBlogDto {
   @IsNotEmpty()
   @Length(100)
   content: string;
+
+  @ApiPropertyOptional({ type: String, isArray: true })
+  // @IsArray()
+  categories: string[] | string;
+}
+
+export class FilterBlogDto {
+  @IsString()
+  @IsOptional()
+  category: string;
 }

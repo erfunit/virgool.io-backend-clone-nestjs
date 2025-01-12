@@ -6,6 +6,7 @@ import { CreateBlogDto } from './dto/blog.dto';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { RequiredAuth } from 'src/common/decorators/auth.decorator';
+import { FilterBlog } from './decorator/filter-blog.decorator';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -25,6 +26,7 @@ export class BlogController {
 
   @Get('/')
   @Pagination()
+  @FilterBlog()
   find(@Query() paginationDto: PaginationDto) {
     return this.blogService.blogList(paginationDto);
   }

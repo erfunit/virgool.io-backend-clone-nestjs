@@ -46,5 +46,9 @@ export class CreateBlogDto {
 export class FilterBlogDto {
   @IsString()
   @IsOptional()
-  category: string;
+  category?: string;
+
+  @IsString()
+  @IsOptional()
+  search?: string;
 }

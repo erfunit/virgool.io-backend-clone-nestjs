@@ -7,5 +7,9 @@ export function FilterBlog() {
       name: 'category',
       required: false,
     }),
+    ApiQuery({
+      name: 'search',
+      required: false,
+    }),
   );
 }

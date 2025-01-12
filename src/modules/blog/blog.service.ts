@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
-import { CreateBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto } from './dto/blog.dto';
 import { generateSlug } from 'src/common/utils/slug.util';
 import { BlogStatus } from './enum/blog-status.enum';
 import { Request } from 'express';
@@ -16,6 +16,7 @@ import {
 import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { CategoryService } from '../category/category.service';
 import { isArray, isString } from 'class-validator';
+import { EntityName } from 'src/common/enums/entity.enum';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -84,14 +85,33 @@ export class BlogService {
     });
   }
 
-  async blogList(paginationDto: PaginationDto) {
+  async blogList(paginationDto: PaginationDto, filterDto: FilterBlogDto) {
+    let { category, search } = filterDto;
+    let where = '';
+    if (category) {
+      category = category.toLowerCase();
+      if (where.length > 0) where += ' AND ';
+      where += 'category.title = LOWER(:category)';
+    }
+    if (search) {
+      if (where.length > 0) where += ' AND ';
+      search = `%${search}%`;
+      where +=
+        'CONCAT(blog.title, blog.description, blog.content) ILIKE :search';
+    }
+
     const { skip, limit: take, page } = paginationResolver(paginationDto);
-    const [blogs, count] = await this.blogRepository.findAndCount({
-      where: {},
-      order: { id: 'DESC' },
-      skip,
-      take,
-    });
+    const query = this.blogRepository
+      .createQueryBuilder(EntityName.Blog)
+      .leftJoin('blog.categories', 'categories')
+      .leftJoin('categories.category', 'category')
+      .addSelect(['categories.id', 'category.title'])
+      .where(where, { category, search })
+      .orderBy('blog.id', 'DESC')
+      .skip(skip)
+      .take(take);
+
+    const [blogs, count] = await query.getManyAndCount();
 
     return {
       data: blogs,

@@ -6,12 +6,12 @@ import {
   Scope,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlogEntity } from './entities/blog.entity';
+import { BlogEntity } from '../entities/blog.entity';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
 import { generateSlug } from 'src/common/utils/slug.util';
-import { BlogStatus } from './enum/blog-status.enum';
+import { BlogStatus } from '../enum/blog-status.enum';
 import { Request } from 'express';
 import {
   ConflictMessage,
@@ -23,12 +23,12 @@ import {
   paginationGenerator,
   paginationResolver,
 } from 'src/common/utils/pagination.util';
-import { BlogCategoryEntity } from './entities/blog-category.entity';
-import { CategoryService } from '../category/category.service';
+import { BlogCategoryEntity } from '../entities/blog-category.entity';
+import { CategoryService } from '../../category/category.service';
 import { isArray, isString } from 'class-validator';
 import { EntityName } from 'src/common/enums/entity.enum';
-import { BlogLikeEntity } from './entities/like.entity';
-import { BlogBookmarkEntity } from './entities/bookmark.entity';
+import { BlogLikeEntity } from '../entities/like.entity';
+import { BlogBookmarkEntity } from '../entities/bookmark.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {

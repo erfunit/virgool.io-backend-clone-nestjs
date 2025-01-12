@@ -9,14 +9,14 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { BlogService } from './blog.service';
+import { BlogService } from '../service/blog.service';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
 import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { RequiredAuth } from 'src/common/decorators/auth.decorator';
-import { FilterBlog } from './decorator/filter-blog.decorator';
+import { FilterBlog } from '../decorator/filter-blog.decorator';
 
 @ApiTags('Blogs')
 @Controller('blog')

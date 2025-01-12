@@ -16,6 +16,7 @@ export enum PublicMessage {
 
   // blog
   BlogCreated = 'blog created successfully',
+  BlogRemoved = 'blog removed successfully',
 
   // public
   SomethingWentWrong = 'something went wrong',

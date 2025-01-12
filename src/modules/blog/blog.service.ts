@@ -118,4 +118,28 @@ export class BlogService {
       pagination: paginationGenerator(count, page, take),
     };
   }
+
+  findOne(id: number) {
+    return this.blogRepository.findOne({
+      where: { id },
+      relations: ['categories', 'categories.category'],
+      select: {
+        categories: {
+          id: true,
+          category: {
+            title: true,
+          },
+        },
+      },
+    });
+  }
+
+  async remove(id: number) {
+    const blog = await this.findOne(id);
+    await this.blogRepository.delete({ id });
+    return {
+      message: PublicMessage.BlogRemoved,
+      data: blog,
+    };
+  }
 }

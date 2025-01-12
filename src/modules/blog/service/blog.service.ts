@@ -188,13 +188,12 @@ export class BlogService {
         {
           publishedStatus: BlogStatus.Published,
           draftedStatus: BlogStatus.Draft,
-          userId: user?.id, // Use optional chaining to prevent accessing `id` when user is null
+          userId: user?.id,
         },
       )
-      // Dynamically filter comments based on whether the user is the author
       .andWhere(
         user && user.id === pureBlog.authorId
-          ? '1=1' // No restriction for the author
+          ? '1=1'
           : 'comments.accepted = :accepted',
         { accepted: true },
       )

@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { isJWT } from 'class-validator';
 import { Request } from 'express';
-import { AuthMessage } from 'src/common/enums/message.enums';
 import { AuthService } from '../auth.service';
 import { Reflector } from '@nestjs/core';
 
@@ -17,23 +16,43 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
   ) {}
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const httpContext = context.switchToHttp();
     const request: Request = httpContext.getRequest<Request>();
-    const token = this.extractToken(request);
-    request.user = await this.authService.extractAccessToken(token);
+    const optionalAuth = this.reflector.get<boolean>(
+      'optionalAuth',
+      context.getHandler(),
+    );
+
+    const authorization = request.headers.authorization;
+
+    if (authorization) {
+      try {
+        const token = this.extractToken(authorization);
+        request.user = await this.authService.extractAccessToken(token);
+      } catch (error: any) {
+        console.log(error);
+        if (!optionalAuth) {
+          throw new UnauthorizedException('Invalid token');
+        }
+        request.user = null; // Proceed as unauthenticated if optional
+      }
+    } else {
+      if (!optionalAuth) {
+        throw new UnauthorizedException('Token is required');
+      }
+      request.user = null; // Proceed as unauthenticated if optional
+    }
+
     return true;
   }
 
-  protected extractToken(req: Request): string {
-    const { authorization } = req.headers;
-    if (!authorization || authorization?.trim() === '')
-      throw new UnauthorizedException(AuthMessage.InvalidCredentials);
+  private extractToken(authorization: string): string {
+    const [bearer, token] = authorization.split(' ');
 
-    const [bearer, token] = authorization?.split(' ');
-
-    if (bearer?.toLowerCase() !== 'bearer' || !token || !isJWT(token))
-      throw new UnauthorizedException(AuthMessage.InvalidCredentials);
+    if (bearer?.toLowerCase() !== 'bearer' || !token || !isJWT(token)) {
+      throw new UnauthorizedException('Invalid token');
+    }
 
     return token;
   }

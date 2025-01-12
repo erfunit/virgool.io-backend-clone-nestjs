@@ -116,12 +116,21 @@ export class BlogService {
     const { skip, limit: take, page } = paginationResolver(paginationDto);
     const query = this.blogRepository
       .createQueryBuilder(EntityName.Blog)
+      .leftJoin('blog.author', 'author')
+      .leftJoin('author.profile', 'profile')
       .leftJoin('blog.blog_likes', 'blog_likes')
       .leftJoin('blog.categories', 'categories')
       .leftJoin('categories.category', 'category')
-      .addSelect(['categories.id', 'category.title'])
+      .loadRelationCountAndMap('blog.like_count', 'blog.blog_likes')
+      .loadRelationCountAndMap('blog.bookmark_count', 'blog.blog_bookmarks')
+      .addSelect([
+        'categories.id',
+        'category.title',
+        'author.username',
+        'author.id',
+        'profile.nick_name',
+      ])
       .where(where, { category, search })
-      .loadRelationCountAndMap('blog.likes_count', 'blog.blog_likes')
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(take);
@@ -137,10 +146,12 @@ export class BlogService {
   async findOne(id: number) {
     const blog = await this.blogRepository
       .createQueryBuilder('blog')
+      .leftJoinAndSelect('blog.author', 'author')
+      .leftJoinAndSelect('author.profile', 'profile')
       .leftJoinAndSelect('blog.categories', 'categories')
       .leftJoinAndSelect('categories.category', 'category')
-      .loadRelationCountAndMap('blog.likeCount', 'blog.blog_likes')
-      .loadRelationCountAndMap('blog.bookmarkCount', 'blog.blog_bookmarks')
+      .loadRelationCountAndMap('blog.like_count', 'blog.blog_likes')
+      .loadRelationCountAndMap('blog.bookmark_count', 'blog.blog_bookmarks')
       .where('blog.id = :id', { id })
       .select([
         'blog.id',
@@ -152,6 +163,9 @@ export class BlogService {
         'blog.status',
         'categories.id',
         'category.title',
+        'author.username',
+        'author.id',
+        'profile.nick_name',
       ])
       .getOne();
 

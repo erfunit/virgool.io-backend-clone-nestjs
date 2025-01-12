@@ -18,7 +18,7 @@ export class BlogCommentEntity extends BaseEntity {
   @Column()
   userId: number;
 
-  @Column()
+  @Column({ nullable: true })
   parentId: number;
 
   @ManyToOne(() => BlogEntity, (blog) => blog.comments, { onDelete: 'CASCADE' })
@@ -29,10 +29,13 @@ export class BlogCommentEntity extends BaseEntity {
   })
   @ManyToOne(() => BlogCommentEntity, (comment) => comment.children, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   parent: BlogCommentEntity;
 
-  @OneToMany(() => BlogCommentEntity, (blog_comment) => blog_comment.parent)
+  @OneToMany(() => BlogCommentEntity, (blog_comment) => blog_comment.parent, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'parent' })
   children: BlogCommentEntity[];
 

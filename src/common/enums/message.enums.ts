@@ -27,6 +27,9 @@ export enum PublicMessage {
   BlogBookmarked = 'blog bookmarked',
   BlogBookmarkedRemoved = 'bookmark removed',
 
+  // comments
+  CommentCreated = 'new comment created successfully',
+
   // public
   SomethingWentWrong = 'something went wrong',
 }

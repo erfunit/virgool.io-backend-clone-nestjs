@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, Length } from 'class-validator';
+import { IsNumber, IsOptional, Length } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateCommentDto {
   @ApiProperty()
@@ -7,6 +8,17 @@ export class CreateCommentDto {
   text: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? parseInt(value, 10) : value,
+  )
   @IsNumber()
   parentId?: number;
+
+  @ApiProperty()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? parseInt(value, 10) : value,
+  )
+  @IsNumber()
+  blogId: number;
 }

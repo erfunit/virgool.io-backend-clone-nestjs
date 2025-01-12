@@ -18,7 +18,7 @@ export function paginationGenerator(
 ) {
   return {
     totalCount: count,
-    page: +page,
+    page: +page === 1 ? 1 : +page + 1,
     limit: +limit,
     pageCount: Math.ceil(count / limit),
   };

@@ -43,10 +43,10 @@ export class BlogEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.blogs, { onDelete: 'CASCADE' })
   author: UserEntity;
 
-  @ManyToOne(() => BlogLikeEntity, (blog_like) => blog_like.blog)
+  @OneToMany(() => BlogLikeEntity, (blog_like) => blog_like.blog)
   blog_likes: BlogLikeEntity[];
 
-  @ManyToOne(() => BlogBookmarkEntity, (blog_bookmarks) => blog_bookmarks.blog)
+  @OneToMany(() => BlogBookmarkEntity, (blog_bookmarks) => blog_bookmarks.blog)
   blog_bookmarks: BlogBookmarkEntity[];
 
   @OneToMany(() => BlogCommentEntity, (comment) => comment.blog)

@@ -116,10 +116,12 @@ export class BlogService {
     const { skip, limit: take, page } = paginationResolver(paginationDto);
     const query = this.blogRepository
       .createQueryBuilder(EntityName.Blog)
+      .leftJoin('blog.blog_likes', 'blog_likes')
       .leftJoin('blog.categories', 'categories')
       .leftJoin('categories.category', 'category')
       .addSelect(['categories.id', 'category.title'])
       .where(where, { category, search })
+      .loadRelationCountAndMap('blog.likes_count', 'blog.blog_likes')
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(take);

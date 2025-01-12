@@ -1,13 +1,23 @@
-import { ConflictException, Inject, Injectable, Scope } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
-import { CreateBlogDto, FilterBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
 import { generateSlug } from 'src/common/utils/slug.util';
 import { BlogStatus } from './enum/blog-status.enum';
 import { Request } from 'express';
-import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enums';
+import {
+  ConflictMessage,
+  NotFoundMessage,
+  PublicMessage,
+} from 'src/common/enums/message.enums';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import {
   paginationGenerator,
@@ -119,8 +129,8 @@ export class BlogService {
     };
   }
 
-  findOne(id: number) {
-    return this.blogRepository.findOne({
+  async findOne(id: number) {
+    const blog = await this.blogRepository.findOne({
       where: { id },
       relations: ['categories', 'categories.category'],
       select: {
@@ -132,10 +142,77 @@ export class BlogService {
         },
       },
     });
+    if (!blog) throw new NotFoundException(NotFoundMessage.BlogNotFound);
+    return blog;
+  }
+
+  async update(id: number, blogDto: UpdateBlogDto) {
+    const blog = await this.findOne(id);
+
+    const { title, description, content, slug, time_for_study, categories } =
+      blogDto;
+
+    if (blog.authorId !== this.request.user.id)
+      throw new NotFoundException(NotFoundMessage.BlogNotFound);
+
+    // Update slug if provided or generate from title
+    if (slug && slug !== blog.slug) {
+      const newSlug = generateSlug(slug, false);
+      const existingBlog = await this.blogRepository.findOneBy({
+        slug: newSlug,
+      });
+      if (existingBlog && existingBlog.id !== id)
+        throw new ConflictException(ConflictMessage.BlogSlug);
+      blog.slug = newSlug;
+    } else if (title && title !== blog.title) {
+      blog.slug = generateSlug(title, true);
+    }
+
+    // Update blog fields
+    if (title) blog.title = title;
+    if (description) blog.description = description;
+    if (content) blog.content = content;
+    if (time_for_study) blog.time_for_study = time_for_study;
+
+    await this.blogRepository.save(blog);
+
+    // Update categories
+    if (categories) {
+      if (!isArray(categories) && isString(categories)) {
+        blogDto.categories = categories.split(',');
+      }
+
+      // Clear existing categories
+      await this.blogCategoryRepository.delete({ blogId: id });
+
+      // Add new categories
+      for (const categoryTitle of blogDto.categories) {
+        let category = await this.categoryService.findOneByTitle(categoryTitle);
+        if (!category)
+          category = await this.categoryService
+            .create({
+              title: categoryTitle,
+            })
+            .then((data) => data.data);
+
+        await this.blogCategoryRepository.insert({
+          blogId: blog.id,
+          categoryId: category.id,
+        });
+      }
+    }
+
+    return {
+      message: PublicMessage.BlogUpdated,
+      data: blog,
+    };
   }
 
   async remove(id: number) {
+    const { id: userId } = this.request.user;
     const blog = await this.findOne(id);
+    if (blog.authorId !== userId)
+      throw new NotFoundException(NotFoundMessage.BlogNotFound);
     await this.blogRepository.delete({ id });
     return {
       message: PublicMessage.BlogRemoved,

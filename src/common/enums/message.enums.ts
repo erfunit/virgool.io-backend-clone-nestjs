@@ -17,6 +17,7 @@ export enum PublicMessage {
   // blog
   BlogCreated = 'blog created successfully',
   BlogRemoved = 'blog removed successfully',
+  BlogUpdated = 'blog updated successfully',
 
   // public
   SomethingWentWrong = 'something went wrong',
@@ -38,6 +39,7 @@ export enum AuthMessage {
 
 export enum NotFoundMessage {
   CategoryNotFound = 'category not found',
+  BlogNotFound = 'blog not found',
 }
 
 export enum ValidlationMessage {

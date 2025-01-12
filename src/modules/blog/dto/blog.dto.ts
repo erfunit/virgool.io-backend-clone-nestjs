@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumberString,
@@ -42,6 +42,8 @@ export class CreateBlogDto {
   // @IsArray()
   categories: string[] | string;
 }
+
+export class UpdateBlogDto extends PartialType(CreateBlogDto) {}
 
 export class FilterBlogDto {
   @IsString()

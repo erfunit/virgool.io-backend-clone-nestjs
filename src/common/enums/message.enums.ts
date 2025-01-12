@@ -29,6 +29,8 @@ export enum PublicMessage {
 
   // comments
   CommentCreated = 'new comment created successfully',
+  CommentAccepted = 'comment accepted',
+  CommentRejected = 'comment rejected',
 
   // public
   SomethingWentWrong = 'something went wrong',
@@ -51,6 +53,7 @@ export enum AuthMessage {
 export enum NotFoundMessage {
   CategoryNotFound = 'category not found',
   BlogNotFound = 'blog not found',
+  CommentNotFound = 'comment not found',
 }
 
 export enum ValidlationMessage {

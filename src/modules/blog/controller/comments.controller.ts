@@ -1,4 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { RequiredAuth } from 'src/common/decorators/auth.decorator';
 import { CommentsService } from '../service/comments.service';
@@ -10,6 +17,14 @@ import { CreateCommentDto } from '../dto/comment.dto';
 @RequiredAuth()
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
+
+  @Get('toggle-accespt/blog/:blogId/comment/:commentId')
+  toggleAccept(
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Param('commentId', ParseIntPipe) commentId: number,
+  ) {
+    return this.commentsService.toggleAccept(blogId, commentId);
+  }
 
   @Post()
   @ApiConsumes(SwaggerConsumes.Json, SwaggerConsumes.UrlEncoded)

@@ -10,6 +10,6 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
     username: DB_USERNAME,
     port: +DB_PORT,
     entities: ['dist/**/*.entity{.js,.ts}'],
-    synchronize: true,
+    synchronize: false,
   };
 }
